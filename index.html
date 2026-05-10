@@ -119,12 +119,14 @@
             background: var(--surface);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: hidden;
             border: 1px solid var(--border);
         }
 
         table {
             width: 100%;
+            min-width: 900px;
             border-collapse: collapse;
             text-align: left;
         }
@@ -326,8 +328,8 @@
 
         .fab {
             position: fixed;
-            bottom: 2rem;
-            right: 2rem;
+            bottom: max(1rem, env(safe-area-inset-bottom));
+            right: max(1rem, env(safe-area-inset-right));
             width: 60px;
             height: 60px;
             background: var(--primary);
@@ -340,7 +342,7 @@
             box-shadow: 0 8px 20px rgba(19, 78, 74, 0.4);
             cursor: pointer;
             border: none;
-            z-index: 100;
+            z-index: 900;
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
@@ -582,11 +584,46 @@
         }
 
         @media(max-width:800px) {
-            .navbar h1 { font-size: 1.2rem; }
+            .navbar {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                padding: 0.75rem 1rem;
+            }
+            .navbar h1 { font-size: 1.1rem; }
+            .nav-controls {
+                width: 100%;
+                flex-wrap: nowrap;
+                gap: 8px;
+            }
+            .nav-controls input,
+            .nav-controls select {
+                min-width: 0;
+                width: calc((100% - 16px) / 3);
+                font-size: 0.9rem;
+            }
+            .container { padding: 1rem 0.75rem 5rem; }
+            .summary-bar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .summary-card {
+                padding: 0.85rem;
+                min-height: 96px;
+            }
+            .summary-card .label { font-size: 0.68rem; }
+            .summary-card .value { font-size: 1.75rem; }
             th { padding: 0.5rem; font-size: 0.7rem; }
             td { padding: 0.5rem; font-size: 0.8rem; }
             .cell-image, .no-image-placeholder { width: 80px; height: 60px; }
             .action-btns { flex-direction: column; }
+            .workers-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .fab {
+                width: 56px;
+                height: 56px;
+                font-size: 1.4rem;
+                bottom: max(0.75rem, env(safe-area-inset-bottom));
+                right: max(0.75rem, env(safe-area-inset-right));
+            }
         }
     </style>
 </head>
