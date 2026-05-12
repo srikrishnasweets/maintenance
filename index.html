@@ -320,6 +320,27 @@
             color: var(--primary);
         }
 
+        .summary-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 0.35rem;
+        }
+
+        .split-block {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .split-label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
 
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -639,6 +660,7 @@
         <h1><i class="bi bi-gear-wide-connected"></i> Maintenance</h1>
         <div class="nav-controls">
             <input type="text" id="searchInput" placeholder="Search entries..." oninput="renderDashboard()">
+            <input type="date" id="dateFilter">
             <select id="zoneFilter">
                 <option value="All">All Zones</option>
                 <option>Zone-1</option>
@@ -663,15 +685,42 @@
         <div class="summary-bar" id="summaryBar">
             <div class="summary-card total" onclick="setStatusFilter('All')">
                 <span class="label">Total Tasks</span>
-                <span class="value" id="countTotal">0</span>
+                <div class="summary-split">
+                    <div class="split-block">
+                        <span class="split-label">All</span>
+                        <span class="value" id="countTotalAll">0</span>
+                    </div>
+                    <div class="split-block">
+                        <span class="split-label">Today</span>
+                        <span class="value" id="countTotalToday">0</span>
+                    </div>
+                </div>
             </div>
             <div class="summary-card pending" onclick="setStatusFilter('Pending')">
                 <span class="label">Pending</span>
-                <span class="value" id="countPending">0</span>
+                <div class="summary-split">
+                    <div class="split-block">
+                        <span class="split-label">All</span>
+                        <span class="value" id="countPendingAll">0</span>
+                    </div>
+                    <div class="split-block">
+                        <span class="split-label">Today</span>
+                        <span class="value" id="countPendingToday">0</span>
+                    </div>
+                </div>
             </div>
             <div class="summary-card completed" onclick="setStatusFilter('Completed')">
                 <span class="label">Completed</span>
-                <span class="value" id="countCompleted">0</span>
+                <div class="summary-split">
+                    <div class="split-block">
+                        <span class="split-label">All</span>
+                        <span class="value" id="countCompletedAll">0</span>
+                    </div>
+                    <div class="split-block">
+                        <span class="split-label">Today</span>
+                        <span class="value" id="countCompletedToday">0</span>
+                    </div>
+                </div>
             </div>
         </div>
         <div id="loadingState" class="empty-state">
@@ -819,6 +868,17 @@
         window.addEventListener('DOMContentLoaded', fetchData);
         document.getElementById('zoneFilter').addEventListener('change', renderDashboard);
         document.getElementById('statusFilter').addEventListener('change', renderDashboard);
+        document.getElementById('dateFilter').addEventListener('change', renderDashboard);
+
+        function toDateKey(value) {
+            if (!value) return '';
+            const date = new Date(value);
+            if (isNaN(date.getTime())) return '';
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
 
         function previewFile(e, previewId) {
             const file = e.target.files[0];
@@ -1019,6 +1079,9 @@
                 const result = await res.json();
                 if (result.status === 'success') {
                     allData = result.data;
+                    if (!document.getElementById('dateFilter').value) {
+                        document.getElementById('dateFilter').value = toDateKey(new Date());
+                    }
                     renderDashboard();
                 } else {
                     throw new Error(result.message || 'Server returned an error');
@@ -1067,11 +1130,11 @@
             const zf = document.getElementById('zoneFilter').value;
             const sf = document.getElementById('statusFilter').value;
             const search = document.getElementById('searchInput').value.toLowerCase();
+            const selectedDate = document.getElementById('dateFilter').value;
 
-            // Filter data
-            let filtered = allData.filter(item => {
+            // Base filter for summary cards (zone + search)
+            const scoped = allData.filter(item => {
                 if (zf !== 'All' && item.Zone !== zf) return false;
-                if (sf !== 'All' && item.Status !== sf) return false;
                 if (search) {
                     const text = (item.Title + ' ' + item.Reason + ' ' + item.Source).toLowerCase();
                     if (!text.includes(search)) return false;
@@ -1079,14 +1142,27 @@
                 return true;
             });
 
-            // Update Counts based on Filtered data
-            const totalCount = filtered.length;
-            const pendingCount = filtered.filter(d => d.Status === 'Pending').length;
-            const completedCount = filtered.filter(d => d.Status === 'Completed').length;
-            
-            document.getElementById('countTotal').textContent = totalCount;
-            document.getElementById('countPending').textContent = pendingCount;
-            document.getElementById('countCompleted').textContent = completedCount;
+            // Split counts: left = all, right = selected date (today by default)
+            const totalAll = scoped.length;
+            const totalToday = scoped.filter(d => toDateKey(d.CreatedAt) === selectedDate).length;
+            const pendingAll = scoped.filter(d => d.Status === 'Pending').length;
+            const pendingToday = scoped.filter(d => d.Status === 'Pending' && toDateKey(d.CreatedAt) === selectedDate).length;
+            const completedAll = scoped.filter(d => d.Status === 'Completed').length;
+            const completedToday = scoped.filter(d => d.Status === 'Completed' && toDateKey(d.CreatedAt) === selectedDate).length;
+
+            document.getElementById('countTotalAll').textContent = totalAll;
+            document.getElementById('countTotalToday').textContent = totalToday;
+            document.getElementById('countPendingAll').textContent = pendingAll;
+            document.getElementById('countPendingToday').textContent = pendingToday;
+            document.getElementById('countCompletedAll').textContent = completedAll;
+            document.getElementById('countCompletedToday').textContent = completedToday;
+
+            // Final table filter includes status + selected date
+            let filtered = scoped.filter(item => {
+                if (sf !== 'All' && item.Status !== sf) return false;
+                if (selectedDate && toDateKey(item.CreatedAt) !== selectedDate) return false;
+                return true;
+            });
 
             if (!filtered.length) {
                 container.style.display = 'none';
