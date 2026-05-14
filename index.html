@@ -97,8 +97,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .zone-header {
@@ -132,7 +139,8 @@
         }
 
         thead {
-            background: #1e5e71; /* Dark teal as in image */
+            background: #1e5e71;
+            /* Dark teal as in image */
             color: #ffffff;
         }
 
@@ -142,10 +150,12 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            border-right: 1px solid rgba(255,255,255,0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        th:last-child { border-right: none; }
+        th:last-child {
+            border-right: none;
+        }
 
         td {
             padding: 1rem;
@@ -155,9 +165,13 @@
             color: #334155;
         }
 
-        tr:last-child td { border-bottom: none; }
-        
-        tr:nth-child(even) { background-color: #f1f5f9; }
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f1f5f9;
+        }
 
         .cell-image {
             width: 120px;
@@ -172,7 +186,7 @@
 
         .cell-image:hover {
             transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .no-image-placeholder {
@@ -189,9 +203,22 @@
             border: 1px dashed var(--border);
         }
 
-        .cell-title { font-weight: 600; color: var(--text); }
-        .cell-reason { font-size: 0.9rem; color: var(--muted); line-height: 1.4; }
-        .cell-source { font-size: 0.85rem; font-weight: 500; color: var(--secondary); }
+        .cell-title {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .cell-reason {
+            font-size: 0.9rem;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        .cell-source {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--secondary);
+        }
 
         .date-badge {
             font-size: 0.75rem;
@@ -208,8 +235,15 @@
             text-transform: uppercase;
         }
 
-        .status-pending { background: #fef3c7; color: #92400e; }
-        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
 
         .workers-grid {
             display: grid;
@@ -271,11 +305,29 @@
             gap: 4px;
         }
 
-        .btn-after { background: var(--accent); color: white; }
-        .btn-edit { background: #6366f1; color: white; }
-        .btn-delete { background: #ef4444; color: white; }
-        .btn-action:hover { filter: brightness(90%); transform: translateY(-1px); }
-        .btn-action:active { transform: translateY(0); }
+        .btn-after {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-edit {
+            background: #6366f1;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-action:hover {
+            filter: brightness(90%);
+            transform: translateY(-1px);
+        }
+
+        .btn-action:active {
+            transform: translateY(0);
+        }
 
         .summary-bar {
             display: grid;
@@ -343,8 +395,15 @@
 
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .fab {
@@ -618,32 +677,73 @@
                 flex-wrap: wrap;
                 padding: 0.75rem 1rem;
             }
-            .navbar h1 { font-size: 1.1rem; }
+
+            .navbar h1 {
+                font-size: 1.1rem;
+            }
+
             .nav-controls {
                 width: 100%;
                 flex-wrap: nowrap;
                 gap: 8px;
             }
+
             .nav-controls input,
             .nav-controls select {
                 min-width: 0;
                 width: calc((100% - 16px) / 3);
                 font-size: 0.9rem;
             }
-            .container { padding: 1rem 0.75rem 5rem; }
-            .summary-bar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+            .container {
+                padding: 1rem 0.75rem 5rem;
+            }
+
+            .summary-bar {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
             .summary-card {
                 padding: 0.85rem;
                 min-height: 96px;
             }
-            .summary-card .label { font-size: 0.68rem; }
-            .summary-card .value { font-size: 1.75rem; }
-            th { padding: 0.5rem; font-size: 0.7rem; }
-            td { padding: 0.5rem; font-size: 0.8rem; }
-            .cell-image, .no-image-placeholder { width: 80px; height: 60px; }
-            .action-btns { flex-direction: column; }
-            .workers-grid { grid-template-columns: 1fr; }
-            .form-grid { grid-template-columns: 1fr; }
+
+            .summary-card .label {
+                font-size: 0.68rem;
+            }
+
+            .summary-card .value {
+                font-size: 1.75rem;
+            }
+
+            th {
+                padding: 0.5rem;
+                font-size: 0.7rem;
+            }
+
+            td {
+                padding: 0.5rem;
+                font-size: 0.8rem;
+            }
+
+            .cell-image,
+            .no-image-placeholder {
+                width: 80px;
+                height: 60px;
+            }
+
+            .action-btns {
+                flex-direction: column;
+            }
+
+            .workers-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
             .fab {
                 width: 56px;
                 height: 56px;
@@ -663,15 +763,16 @@
             <input type="date" id="dateFilter">
             <select id="zoneFilter">
                 <option value="All">All Zones</option>
-                <option>Zone-1</option>
-                <option>Zone-2</option>
-                <option>Zone-3</option>
-                <option>Zone-4</option>
-                <option>Zone-5</option>
-                <option>Zone-6</option>
-                <option>Zone-7</option>
-                <option>Zone-8</option>
-                <option>Zone-9</option>
+                <option>Zone 1 – Security– Manogar</option>
+                <option>Zone 2 – Store– Murali</option>
+                <option>Zone 3 – SET– Ramasubramani</option>
+                <option>Zone 4 – Sweet Production– Mani</option>
+                <option>Zone 5 – Sweet Packing– Madhu</option>
+                <option>Zone 6 – Kara Production– Palaniappan</option>
+                <option>Zone 7 – Kara Packing– Vimala</option>
+                <option>Zone 8 – FP & Staff Food– Selva</option>
+                <option>Zone 9 – Dispatch– Prem</option>
+                <option>Zone 10 – Logistic– Subburaj</option>
             </select>
             <select id="statusFilter">
                 <option value="All">Status: All</option>
@@ -748,15 +849,16 @@
                         <label>Zone</label>
                         <select id="zone" required>
                             <option value="">Select Zone</option>
-                            <option>Zone-1</option>
-                            <option>Zone-2</option>
-                            <option>Zone-3</option>
-                            <option>Zone-4</option>
-                            <option>Zone-5</option>
-                            <option>Zone-6</option>
-                            <option>Zone-7</option>
-                            <option>Zone-8</option>
-                            <option>Zone-9</option>
+                            <option>Zone 1 – Security → Manogar</option>
+                            <option>Zone 2 – Store → Murali</option>
+                            <option>Zone 3 – SET → Ramasubramani</option>
+                            <option>Zone 4 – Sweet Production → Mani</option>
+                            <option>Zone 5 – Sweet Packing → Madhu</option>
+                            <option>Zone 6 – Kara Production → Palaniappan</option>
+                            <option>Zone 7 – Kara Packing → Vimala</option>
+                            <option>Zone 8 – FP & Staff Food → Selva</option>
+                            <option>Zone 9 – Dispatch → Prem</option>
+                            <option>Zone 10 – Logistic → Subburaj</option>
                         </select>
                     </div>
                     <div class="form-group" id="statusGroup" style="display:none">
@@ -900,10 +1002,10 @@
         function openModal(rowIndex = null) {
             const form = document.getElementById('mainForm');
             form.reset();
-            
+
             // Reset workers checkboxes
             document.querySelectorAll('#workersList input').forEach(cb => cb.checked = false);
-            
+
             document.getElementById('beforePreview').style.display = 'none';
             document.getElementById('statusMsg').className = 'status-msg';
             document.getElementById('editRowIndex').value = rowIndex || '';
@@ -917,9 +1019,9 @@
             if (rowIndex) {
                 title.innerHTML = '<i class="bi bi-pencil-square"></i> Edit Maintenance Entry';
                 btnText.textContent = 'Update Entry';
-                imgGroup.style.display = 'none'; 
+                imgGroup.style.display = 'none';
                 statusGroup.style.display = 'flex';
-                
+
                 const item = allData.find(d => d.RowIndex == rowIndex);
                 if (item) {
                     document.getElementById('zone').value = item.Zone || '';
@@ -928,7 +1030,7 @@
                     document.getElementById('source').value = item.Source || '';
                     document.getElementById('payment').value = item.Payment || '';
                     document.getElementById('status').value = item.Status || 'Pending';
-                    
+
                     // Pre-fill workers
                     if (item.Workers) {
                         const selected = item.Workers.split(',').map(s => s.trim());
@@ -965,11 +1067,11 @@
             msg.className = 'status-msg';
 
             const rowIndex = document.getElementById('editRowIndex').value;
-            
+
             // Collect workers
             const selectedWorkers = Array.from(document.querySelectorAll('#workersList input:checked'))
-                                         .map(cb => cb.value)
-                                         .join(', ');
+                .map(cb => cb.value)
+                .join(', ');
 
             const payload = {
                 action: rowIndex ? 'update' : 'add',
@@ -1126,7 +1228,7 @@
             const noData = document.getElementById('noData');
             const container = document.getElementById('dashboardContainer');
             loading.style.display = 'none';
-            
+
             const zf = document.getElementById('zoneFilter').value;
             const sf = document.getElementById('statusFilter').value;
             const search = document.getElementById('searchInput').value.toLowerCase();
@@ -1190,13 +1292,13 @@
 
             sortedZones.forEach(zoneName => {
                 const zoneRecords = grouped[zoneName];
-                
+
                 // Sort records within zone by date ascending
                 zoneRecords.sort((a, b) => new Date(a.CreatedAt) - new Date(b.CreatedAt));
 
                 const zoneSection = document.createElement('div');
                 zoneSection.className = 'zone-section';
-                
+
                 let tableHtml = `
                     <div class="zone-header">
                         <i class="bi bi-geo-alt-fill"></i> ${zoneName}
@@ -1219,17 +1321,17 @@
                     const isPending = item.Status === 'Pending';
                     const beforeThumb = item.BeforeImage ? driveThumb(item.BeforeImage, 400) : '';
                     const afterThumb = item.AfterImage ? driveThumb(item.AfterImage, 400) : '';
-                    
-                    const workerPills = (item.Workers && typeof item.Workers === 'string' && item.Workers.trim() !== '') ? 
-                        item.Workers.split(',').map(w => `<span class="worker-pill">${w.trim()}</span>`).join('') : 
+
+                    const workerPills = (item.Workers && typeof item.Workers === 'string' && item.Workers.trim() !== '') ?
+                        item.Workers.split(',').map(w => `<span class="worker-pill">${w.trim()}</span>`).join('') :
                         '<span style="color:var(--muted); font-size:0.8rem">Not Assigned</span>';
 
                     tableHtml += `
                         <tr>
                             <td>
-                                ${beforeThumb ? 
-                                    `<img src="${beforeThumb}" class="cell-image" onclick="viewImage('${item.BeforeImage}')">` : 
-                                    `<div class="no-image-placeholder">No Image</div>`}
+                                ${beforeThumb ?
+                            `<img src="${beforeThumb}" class="cell-image" onclick="viewImage('${item.BeforeImage}')">` :
+                            `<div class="no-image-placeholder">No Image</div>`}
                             </td>
                             <td>
                                 <div class="cell-title">${item.Title || '---'}</div>
@@ -1241,16 +1343,16 @@
                             <td class="cell-reason">${item.Reason || '---'}</td>
                             <td><div style="display:flex; flex-wrap:wrap; gap:4px">${workerPills}</div></td>
                             <td>
-                                ${afterThumb ? 
-                                    `<img src="${afterThumb}" class="cell-image" onclick="viewImage('${item.AfterImage}')">` : 
-                                    `<div class="no-image-placeholder">Pending</div>`}
+                                ${afterThumb ?
+                            `<img src="${afterThumb}" class="cell-image" onclick="viewImage('${item.AfterImage}')">` :
+                            `<div class="no-image-placeholder">Pending</div>`}
                                 
                                 <div class="action-btns">
-                                    ${isPending ? 
-                                        `<button class="btn-action btn-after" onclick="openAfterModal(${item.RowIndex})">
+                                    ${isPending ?
+                            `<button class="btn-action btn-after" onclick="openAfterModal(${item.RowIndex})">
                                             <i class="bi bi-check2-circle"></i> Complete
                                         </button>` : ''
-                                    }
+                        }
                                     <button class="btn-action btn-edit" onclick="openModal(${item.RowIndex})">
                                         <i class="bi bi-pencil"></i>
                                     </button>
@@ -1268,7 +1370,7 @@
                         </table>
                     </div>
                 `;
-                
+
                 zoneSection.innerHTML = tableHtml;
                 container.appendChild(zoneSection);
             });
