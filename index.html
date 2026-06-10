@@ -331,7 +331,7 @@
 
         .summary-bar {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
             margin-bottom: 2rem;
         }
@@ -370,6 +370,25 @@
             font-size: 1.5rem;
             font-weight: 800;
             color: var(--primary);
+        }
+
+        .summary-card .value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .summary-card.power {
+            background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+            color: white;
+        }
+
+        .summary-card.power .label {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .summary-card.power .value {
+            color: white;
         }
 
         .summary-split {
@@ -820,7 +839,12 @@
                     </div>
                 </div>
             </div>
+            <div class="summary-card power" onclick="openPowerModal()">
+                <span class="label"><i class="bi bi-lightning-charge-fill"></i> Power Consumption</span>
+                <span class="value" id="powerValue">0</span>
+            </div>
         </div>
+
         <div id="loadingState" class="empty-state">
             <div class="spinner"></div>
             <p>Gathering maintenance data...</p>
@@ -957,6 +981,25 @@
         </div>
     </div>
 
+    <!-- Power Consumption Modal -->
+    <div class="modal" id="powerModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('powerModal')">&times;</button>
+            <h2><i class="bi bi-lightning-charge-fill"></i> Power Consumption Entry</h2>
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label>Power</label>
+                    <input type="number" id="powerEntryValue" placeholder="Enter power consumption" step="0.01" required>
+                </div>
+                <button type="button" class="submit-btn" onclick="savePowerEntry()">
+                    <span id="powerBtnText">Save Entry</span>
+                    <div class="loader" id="powerBtnLoader"></div>
+                </button>
+            </div>
+            <div id="powerStatusMsg" class="status-msg"></div>
+        </div>
+    </div>
+
     <!-- Lightbox -->
     <div class="lightbox" id="lightbox" onclick="this.classList.remove('active')">
         <img id="lightboxImg" src="">
@@ -965,17 +1008,27 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwm1PU-0Lq2JsV_M8ARbZMFd2cenIGu--QCtLRclp-6y6TmkrhxjtNio7yuVj8vmjTXpA/exec";
         let allData = [];
+        let powerData = [];
         let beforeImgData = null;
         let afterImgData = null;
 
-        window.addEventListener('DOMContentLoaded', fetchData);
+        window.addEventListener('DOMContentLoaded', function() {
+            fetchData();
+            fetchPowerData();
+        });
         document.getElementById('zoneFilter').addEventListener('change', renderDashboard);
         document.getElementById('statusFilter').addEventListener('change', renderDashboard);
-        document.getElementById('dateFilter').addEventListener('change', renderDashboard);
+        document.getElementById('dateFilter').addEventListener('change', function() {
+            renderDashboard();
+            updatePowerDisplay();
+        });
 
         function toDateKey(value) {
             if (!value) return '';
-            const date = new Date(value);
+            if (typeof value === 'string') {
+                if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+            }
+            const date = (value instanceof Date || Object.prototype.toString.call(value) === '[object Date]') ? value : new Date(value);
             if (isNaN(date.getTime())) return '';
             const y = date.getFullYear();
             const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -1209,6 +1262,14 @@
         function formatDate(dateStr) {
             if (!dateStr) return '';
             try {
+                if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                    const parts = dateStr.split('-');
+                    const y = parts[0];
+                    const m = parseInt(parts[1], 10);
+                    const d = parts[2];
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    return `${d.padStart(2, '0')} ${months[m - 1]} ${y}`;
+                }
                 const date = new Date(dateStr);
                 return date.toLocaleDateString('en-GB', {
                     day: '2-digit',
@@ -1386,6 +1447,101 @@
         function setStatusFilter(status) {
             document.getElementById('statusFilter').value = status;
             renderDashboard();
+        }
+
+        // ============================================
+        // Power Consumption Functions
+        // ============================================
+
+        async function fetchPowerData() {
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'getPowerData' })
+                });
+                const result = await res.json();
+                if (result.status === 'success') {
+                    powerData = result.data || [];
+                    updatePowerDisplay();
+                }
+            } catch (err) {
+                console.error('Error fetching power data:', err);
+            }
+        }
+
+        function updatePowerDisplay() {
+            const selectedDate = document.getElementById('dateFilter').value;
+            const powerEntry = powerData.find(p => toDateKey(p.Date) === selectedDate);
+            const powerDisplay = document.getElementById('powerValue');
+            const powerCard = document.querySelector('.summary-card.power');
+            
+            if (powerEntry) {
+                powerDisplay.textContent = powerEntry.Power;
+                powerCard.style.cursor = 'default';
+                powerCard.style.pointerEvents = 'none';
+            } else {
+                powerDisplay.textContent = '+ Power Consumption';
+                powerCard.style.cursor = 'pointer';
+                powerCard.style.pointerEvents = 'auto';
+            }
+        }
+
+        function openPowerModal() {
+            const selectedDate = document.getElementById('dateFilter').value;
+            const powerEntry = powerData.find(p => toDateKey(p.Date) === selectedDate);
+            if (powerEntry) return;
+            
+            document.getElementById('powerEntryValue').value = '';
+            document.getElementById('powerStatusMsg').className = 'status-msg';
+            document.getElementById('powerModal').classList.add('active');
+        }
+
+        async function savePowerEntry() {
+            const selectedDate = document.getElementById('dateFilter').value;
+            const powerInput = document.getElementById('powerEntryValue');
+            const btn = document.querySelector('#powerModal .submit-btn');
+            const txt = document.getElementById('powerBtnText');
+            const ldr = document.getElementById('powerBtnLoader');
+            const msg = document.getElementById('powerStatusMsg');
+
+            if (!powerInput.value) {
+                alert('Please enter power value');
+                return;
+            }
+
+            btn.disabled = true;
+            txt.style.display = 'none';
+            ldr.style.display = 'block';
+            msg.className = 'status-msg';
+
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'addPowerRecord',
+                        date: selectedDate,
+                        power: parseFloat(powerInput.value)
+                    })
+                });
+                const result = await res.json();
+                if (result.status === 'success') {
+                    msg.textContent = 'Power entry saved!';
+                    msg.classList.add('success');
+                    await fetchPowerData();
+                    setTimeout(() => closeModal('powerModal'), 1200);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (err) {
+                msg.textContent = 'Failed: ' + err.message;
+                msg.classList.add('error');
+            } finally {
+                btn.disabled = false;
+                txt.style.display = 'block';
+                ldr.style.display = 'none';
+            }
         }
     </script>
 </body>
