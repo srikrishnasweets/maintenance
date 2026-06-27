@@ -837,7 +837,7 @@
                 <option>Zone 9 – Dispatch</option>
                 <option>Zone 10 – Logistic</option>
                 <option>Zone 11 - Staff Food</option>
-                <option>Zone 12 - Lab</option>
+                <option>Zone 12 - QC Lab</option>
                 <option>Zone 13 - Office</option>
             </select>
             <select id="statusFilter">
@@ -865,14 +865,10 @@
             </div>
             <div class="summary-card pending" onclick="setStatusFilter('Pending')">
                 <span class="label">Pending</span>
-                <div class="summary-split">
+                <div class="summary-split" style="grid-template-columns: 1fr;">
                     <div class="split-block">
                         <span class="split-label">All</span>
                         <span class="value" id="countPendingAll">0</span>
-                    </div>
-                    <div class="split-block">
-                        <span class="split-label">Today</span>
-                        <span class="value" id="countPendingToday">0</span>
                     </div>
                 </div>
             </div>
@@ -941,7 +937,7 @@
                             <option>Zone 9 – Dispatch</option>
                             <option>Zone 10 – Logistic</option>
                             <option>Zone 11 - Staff Food</option>
-                            <option>Zone 12 - Lab</option>
+                            <option>Zone 12 - QC Lab</option>
                             <option>Zone 13 - Office</option>
                         </select>
                     </div>
@@ -1064,10 +1060,6 @@
                     <label>SWEET PACKING & ADMIN OFFICE</label>
                     <input type="number" id="powerPackingAdmin" placeholder="Enter PACKING & ADMIN value" step="0.01">
                 </div>
-                <div class="form-group full">
-                    <label>DIESEL GENERATOR</label>
-                    <input type="number" id="powerDiesel" placeholder="Enter DIESEL GENERATOR value" step="0.01">
-                </div>
                 <button type="button" class="submit-btn" onclick="savePowerEntry()">
                     <span id="powerBtnText">Save Entry</span>
                     <div class="loader" id="powerBtnLoader"></div>
@@ -1105,12 +1097,6 @@
                         <a href="javascript:void(0)" onclick="viewLocationMonthlyData('SWEET PACKING & ADMIN OFFICE')"
                             class="power-loc-link"><i class="bi bi-geo-alt"></i> SWEET PACKING & ADMIN OFFICE</a>
                         <span style="font-weight:700; color:var(--primary);" id="viewPackingAdminVal">0</span>
-                    </div>
-                    <div
-                        style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f8fafc; border-radius:8px; border: 1px solid var(--border);">
-                        <a href="javascript:void(0)" onclick="viewLocationMonthlyData('DIESEL GENERATOR')"
-                            class="power-loc-link"><i class="bi bi-geo-alt"></i> DIESEL GENERATOR</a>
-                        <span style="font-weight:700; color:var(--primary);" id="viewDieselVal">0</span>
                     </div>
                 </div>
             </div>
@@ -1455,21 +1441,25 @@
             const totalAll = scoped.length;
             const totalToday = scoped.filter(d => toDateKey(d.CreatedAt) === selectedDate).length;
             const pendingAll = scoped.filter(d => d.Status === 'Pending').length;
-            const pendingToday = scoped.filter(d => d.Status === 'Pending' && toDateKey(d.CreatedAt) === selectedDate).length;
             const completedAll = scoped.filter(d => d.Status === 'Completed').length;
-            const completedToday = scoped.filter(d => d.Status === 'Completed' && toDateKey(d.CreatedAt) === selectedDate).length;
+            const completedToday = scoped.filter(d => d.Status === 'Completed' && toDateKey(d.CompletedAt || d.CompletedAT) === selectedDate).length;
 
             document.getElementById('countTotalAll').textContent = totalAll;
             document.getElementById('countTotalToday').textContent = totalToday;
             document.getElementById('countPendingAll').textContent = pendingAll;
-            document.getElementById('countPendingToday').textContent = pendingToday;
             document.getElementById('countCompletedAll').textContent = completedAll;
             document.getElementById('countCompletedToday').textContent = completedToday;
 
             // Final table filter includes status + selected date
             let filtered = scoped.filter(item => {
                 if (sf !== 'All' && item.Status !== sf) return false;
-                if (selectedDate && toDateKey(item.CreatedAt) !== selectedDate) return false;
+                if (selectedDate) {
+                    if (item.Status === 'Completed') {
+                        if (toDateKey(item.CompletedAt || item.CompletedAT) !== selectedDate) return false;
+                    } else {
+                        if (toDateKey(item.CreatedAt) !== selectedDate) return false;
+                    }
+                }
                 return true;
             });
 
@@ -1542,7 +1532,8 @@
                             </td>
                             <td>
                                 <div class="cell-title">${item.Title || '---'}</div>
-                                <div class="date-badge"><i class="bi bi-calendar3"></i> ${formatDate(item.CreatedAt)}</div>
+                                <div class="date-badge"><i class="bi bi-calendar3"></i> Created: ${formatDate(item.CreatedAt)}</div>
+                                ${!isPending && (item.CompletedAt || item.CompletedAT) ? `<div class="date-badge" style="color: var(--accent);"><i class="bi bi-calendar-check"></i> Completed: ${formatDate(item.CompletedAt || item.CompletedAT)}</div>` : ''}
                                 <div class="cell-source" style="margin-top:4px"><i class="bi bi-person-circle"></i> ${item.Source || '---'}</div>
                                 ${item.Payment ? `<div class="payment-text" style="margin-top:6px"><i class="bi bi-currency-rupee"></i> ${item.Payment}</div>` : ''}
                                 <div style="margin-top:8px"><span class="status-badge ${isPending ? 'status-pending' : 'status-completed'}">${item.Status}</span></div>
@@ -1658,14 +1649,12 @@
             const warehouseEntry = entriesForDate.find(p => String(p.Location).trim().toLowerCase() === 'ware house');
             const karaSweetEntry = entriesForDate.find(p => String(p.Location).trim().toLowerCase() === 'kara section & sweet section');
             const packingAdminEntry = entriesForDate.find(p => String(p.Location).trim().toLowerCase() === 'sweet packing & admin office');
-            const dieselEntry = entriesForDate.find(p => String(p.Location).trim().toLowerCase() === 'diesel generator');
 
             document.getElementById('powerWarehouse').value = warehouseEntry ? warehouseEntry.Power : '';
             document.getElementById('powerKaraSweet').value = karaSweetEntry ? karaSweetEntry.Power : '';
             document.getElementById('powerPackingAdmin').value = packingAdminEntry ? packingAdminEntry.Power : '';
-            document.getElementById('powerDiesel').value = dieselEntry ? dieselEntry.Power : '';
 
-            const hasEntries = warehouseEntry || karaSweetEntry || packingAdminEntry || dieselEntry;
+            const hasEntries = warehouseEntry || karaSweetEntry || packingAdminEntry;
             const title = document.getElementById('powerModalTitle');
             const btnText = document.getElementById('powerBtnText');
 
@@ -1686,14 +1675,13 @@
             const whVal = document.getElementById('powerWarehouse').value;
             const ksVal = document.getElementById('powerKaraSweet').value;
             const paVal = document.getElementById('powerPackingAdmin').value;
-            const diVal = document.getElementById('powerDiesel').value;
 
             const btn = document.querySelector('#powerModal .submit-btn');
             const txt = document.getElementById('powerBtnText');
             const ldr = document.getElementById('powerBtnLoader');
             const msg = document.getElementById('powerStatusMsg');
 
-            if (whVal === '' && ksVal === '' && paVal === '' && diVal === '') {
+            if (whVal === '' && ksVal === '' && paVal === '') {
                 alert('Please enter at least one power value');
                 return;
             }
@@ -1706,8 +1694,7 @@
             const entries = [
                 { location: 'WARE HOUSE', power: whVal !== '' ? parseFloat(whVal) : 0 },
                 { location: 'KARA SECTION & SWEET SECTION', power: ksVal !== '' ? parseFloat(ksVal) : 0 },
-                { location: 'SWEET PACKING & ADMIN OFFICE', power: paVal !== '' ? parseFloat(paVal) : 0 },
-                { location: 'DIESEL GENERATOR', power: diVal !== '' ? parseFloat(diVal) : 0 }
+                { location: 'SWEET PACKING & ADMIN OFFICE', power: paVal !== '' ? parseFloat(paVal) : 0 }
             ];
 
             try {
@@ -1747,12 +1734,10 @@
             const warehouseEntry = entriesForDate.find(p => String(p.Location).trim().toLowerCase() === 'ware house');
             const karaSweetEntry = entriesForDate.find(p => String(p.Location).trim().toLowerCase() === 'kara section & sweet section');
             const packingAdminEntry = entriesForDate.find(p => String(p.Location).trim().toLowerCase() === 'sweet packing & admin office');
-            const dieselEntry = entriesForDate.find(p => String(p.Location).trim().toLowerCase() === 'diesel generator');
 
             document.getElementById('viewWarehouseVal').textContent = warehouseEntry ? warehouseEntry.Power : '0';
             document.getElementById('viewKaraSweetVal').textContent = karaSweetEntry ? karaSweetEntry.Power : '0';
             document.getElementById('viewPackingAdminVal').textContent = packingAdminEntry ? packingAdminEntry.Power : '0';
-            document.getElementById('viewDieselVal').textContent = dieselEntry ? dieselEntry.Power : '0';
 
             // Reset view state
             document.getElementById('viewPowerContent').style.display = 'block';
