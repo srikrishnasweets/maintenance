@@ -86,7 +86,6 @@
         }
 
         .container {
-            max-width: 1200px;
             margin: 0 auto;
             padding: 2rem 1rem;
         }
@@ -331,7 +330,7 @@
 
         .summary-bar {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 1rem;
             margin-bottom: 2rem;
         }
@@ -372,12 +371,6 @@
             color: var(--primary);
         }
 
-        .summary-card .value {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
         .summary-card.power {
             background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
             color: white;
@@ -392,6 +385,23 @@
         }
 
         .summary-card.power .split-label {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .summary-card.water {
+            background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+            color: white;
+        }
+
+        .summary-card.water .label {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .summary-card.water .value {
+            color: white;
+        }
+
+        .summary-card.water .split-label {
             color: rgba(255, 255, 255, 0.85);
         }
 
@@ -724,6 +734,15 @@
             border-radius: 4px
         }
 
+        .input-btn{
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: .9rem;
+            width: 165px;
+        }
+
         @media(max-width:800px) {
             .navbar {
                 flex-direction: row;
@@ -893,8 +912,21 @@
                         <span class="value" id="powerMonthValue">0</span>
                     </div>
                     <div class="split-block">
-                        <span class="split-label">Selected Date</span>
+                        <span class="split-label">Today</span>
                         <span class="value" id="powerValue">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="summary-card water" onclick="openViewWaterModal()">
+                <span class="label"><i class="bi bi-droplet-fill"></i> Water Consumption</span>
+                <div class="summary-split">
+                    <div class="split-block">
+                        <span class="split-label">Monthly</span>
+                        <span class="value" id="waterMonthValue">0</span>
+                    </div>
+                    <div class="split-block">
+                        <span class="split-label">Today</span>
+                        <span class="value" id="waterValue">0</span>
                     </div>
                 </div>
             </div>
@@ -1044,25 +1076,103 @@
 
     <!-- Power Consumption Modal -->
     <div class="modal" id="powerModal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 600px;">
             <button class="close-modal" onclick="closeModal('powerModal')">&times;</button>
             <h2 id="powerModalTitle"><i class="bi bi-lightning-charge-fill"></i> Power Consumption Entry</h2>
-            <div class="form-grid">
-                <div class="form-group full">
-                    <label>WARE HOUSE</label>
-                    <input type="number" id="powerWarehouse" placeholder="Enter WARE HOUSE value" step="0.01">
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <!-- Ware House -->
+                <div style="border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                    <h4 style="font-size: 0.9rem; color: var(--primary); margin-bottom: 8px; font-weight: 700;">WARE HOUSE</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                        <div class="form-group">
+                            <label style="font-size:0.75rem; font-weight: 600;">Opening Unit</label>
+                            <input style="width: 165px;" type="number" id="whOpening" placeholder="Opening" step="0.01" oninput="calcPower('wh')" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:0.75rem; font-weight: 600;">Closing Unit</label>
+                            <input style="width: 165px;" type="number" id="whClosing" placeholder="Closing" step="0.01" oninput="calcPower('wh')">
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:0.75rem; font-weight: 600;">Consumed</label>
+                            <input style="width: 165px;" type="number" id="whPower" placeholder="Calculated" readonly style="background: #f1f5f9; font-weight: bold; border-color: var(--border);">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group full">
-                    <label>KARA SECTION & SWEET SECTION</label>
-                    <input type="number" id="powerKaraSweet" placeholder="Enter KARA & SWEET value" step="0.01">
+
+                <!-- Kara & Sweet -->
+                <div style="border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                    <h4 style="font-size: 0.9rem; color: var(--primary); margin-bottom: 8px; font-weight: 700;">KARA SECTION & SWEET SECTION</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                        <div class="form-group">
+                            <label style="font-size:0.75rem; font-weight: 600;">Opening Unit</label>
+                            <input style="width: 165px;" type="number" id="ksOpening" placeholder="Opening" step="0.01" oninput="calcPower('ks')" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:0.75rem; font-weight: 600;">Closing Unit</label>
+                            <input style="width: 165px;" type="number" id="ksClosing" placeholder="Closing" step="0.01" oninput="calcPower('ks')">
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:0.75rem; font-weight: 600;">Consumed</label>
+                            <input style="width: 165px;" type="number" id="ksPower" placeholder="Calculated" readonly style="background: #f1f5f9; font-weight: bold; border-color: var(--border);">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group full">
-                    <label>SWEET PACKING & ADMIN OFFICE</label>
-                    <input type="number" id="powerPackingAdmin" placeholder="Enter PACKING & ADMIN value" step="0.01">
+
+                <!-- Packing & Admin -->
+                <div style="border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                    <h4 style="font-size: 0.9rem; color: var(--primary); margin-bottom: 8px; font-weight: 700;">SWEET PACKING & ADMIN OFFICE</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                        <div class="form-group">
+                            <label style="font-size:0.75rem; font-weight: 600;">Opening Unit</label>
+                            <input style="width: 165px;" type="number" id="paOpening" placeholder="Opening" step="0.01" oninput="calcPower('pa')" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:0.75rem; font-weight: 600;">Closing Unit</label>
+                            <input style="width: 165px;" type="number" id="paClosing" placeholder="Closing" step="0.01" oninput="calcPower('pa')">
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:0.75rem; font-weight: 600;">Consumed</label>
+                            <input style="width: 165px;" type="number" id="paPower" placeholder="Calculated" readonly style="background: #f1f5f9; font-weight: bold; border-color: var(--border);">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group full">
-                    <label>DIESEL GENERATOR</label>
-                    <input type="number" id="powerDieselGen" placeholder="Enter DIESEL GENERATOR value" step="0.01">
+
+                <!-- Diesel Generator -->
+                <div style="border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                    <h4 style="font-size: 0.9rem; color: var(--primary); margin-bottom: 8px; font-weight: 700;">DIESEL GENERATOR</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                        <div class="form-group">
+                            <label style="font-size:0.75rem; font-weight: 600;">Opening Unit</label>
+                            <input style="width: 165px;" type="number" id="dgOpening" placeholder="Opening" step="0.01" oninput="calcPower('dg')" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:0.75rem; font-weight: 600;">Closing Unit</label>
+                            <input style="width: 165px;" type="number" id="dgClosing" placeholder="Closing" step="0.01" oninput="calcPower('dg')">
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:0.75rem; font-weight: 600;">Consumed</label>
+                            <input style="width: 165px;" type="number" id="dgPower" placeholder="Calculated" readonly style="background: #f1f5f9; font-weight: bold; border-color: var(--border);">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Water -->
+                <div style="border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                    <h4 style="font-size: 0.9rem; color: var(--primary); margin-bottom: 8px; font-weight: 700;">WATER</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                        <div class="form-group">
+                            <label style="font-size:0.75rem; font-weight: 600;">Opening Unit</label>
+                            <input style="width: 165px;" type="number" id="wtOpening" placeholder="Opening" step="0.01" oninput="calcPower('wt')" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:0.75rem; font-weight: 600;">Closing Unit</label>
+                            <input style="width: 165px;" type="number" id="wtClosing" placeholder="Closing" step="0.01" oninput="calcPower('wt')">
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:0.75rem; font-weight: 600;">Consumed</label>
+                            <input style="width: 165px;" type="number" id="wtPower" placeholder="Calculated" readonly style="background: #f1f5f9; font-weight: bold; border-color: var(--border);">
+                        </div>
+                    </div>
                 </div>
                 
                 <button type="button" class="submit-btn" onclick="savePowerEntry()">
@@ -1089,25 +1199,37 @@
                         style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f8fafc; border-radius:8px; border: 1px solid var(--border);">
                         <a href="javascript:void(0)" onclick="viewLocationMonthlyData('WARE HOUSE')"
                             class="power-loc-link"><i class="bi bi-geo-alt"></i> WARE HOUSE</a>
-                        <span style="font-weight:700; color:var(--primary);" id="viewWarehouseVal">0</span>
+                        <div style="text-align: right;">
+                            <span style="font-size:0.75rem; color:var(--muted); display:block;" id="viewWarehouseOpCl">Op: 0 / Cl: 0</span>
+                            <span style="font-weight:700; color:var(--primary);" id="viewWarehouseVal">0</span>
+                        </div>
                     </div>
                     <div
                         style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f8fafc; border-radius:8px; border: 1px solid var(--border);">
                         <a href="javascript:void(0)" onclick="viewLocationMonthlyData('KARA SECTION & SWEET SECTION')"
                             class="power-loc-link"><i class="bi bi-geo-alt"></i> KARA SECTION & SWEET SECTION</a>
-                        <span style="font-weight:700; color:var(--primary);" id="viewKaraSweetVal">0</span>
+                        <div style="text-align: right;">
+                            <span style="font-size:0.75rem; color:var(--muted); display:block;" id="viewKaraSweetOpCl">Op: 0 / Cl: 0</span>
+                            <span style="font-weight:700; color:var(--primary);" id="viewKaraSweetVal">0</span>
+                        </div>
                     </div>
                     <div
                         style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f8fafc; border-radius:8px; border: 1px solid var(--border);">
                         <a href="javascript:void(0)" onclick="viewLocationMonthlyData('SWEET PACKING & ADMIN OFFICE')"
                             class="power-loc-link"><i class="bi bi-geo-alt"></i> SWEET PACKING & ADMIN OFFICE</a>
-                        <span style="font-weight:700; color:var(--primary);" id="viewPackingAdminVal">0</span>
+                        <div style="text-align: right;">
+                            <span style="font-size:0.75rem; color:var(--muted); display:block;" id="viewPackingAdminOpCl">Op: 0 / Cl: 0</span>
+                            <span style="font-weight:700; color:var(--primary);" id="viewPackingAdminVal">0</span>
+                        </div>
                     </div>
                     <div
                         style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f8fafc; border-radius:8px; border: 1px solid var(--border);">
                         <a href="javascript:void(0)" onclick="viewLocationMonthlyData('DIESEL GENERATOR')"
                             class="power-loc-link"><i class="bi bi-geo-alt"></i> DIESEL GENERATOR</a>
-                        <span style="font-weight:700; color:var(--primary);" id="viewDieselGenVal">0</span>
+                        <div style="text-align: right;">
+                            <span style="font-size:0.75rem; color:var(--muted); display:block;" id="viewDieselGenOpCl">Op: 0 / Cl: 0</span>
+                            <span style="font-weight:700; color:var(--primary);" id="viewDieselGenVal">0</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1136,6 +1258,60 @@
                     style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding:10px; background:#f8fafc; border-radius:8px; border: 1px solid var(--border); font-weight:700;">
                     <span style="color:var(--muted); font-size:0.9rem;">Total Power:</span>
                     <span id="monthlyPowerTotalVal" style="color:var(--primary); font-size:1.1rem;">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Water Consumption Modal -->
+    <div class="modal" id="viewWaterModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('viewWaterModal')">&times;</button>
+            <h2 id="viewWaterTitle"><i class="bi bi-droplet-fill" style="color: #0284c7;"></i> Water Details</h2>
+            <div id="viewWaterContent">
+                <div class="form-group full" style="margin-bottom: 12px;">
+                    <div style="font-weight: 600; color: var(--muted); margin-bottom: 4px;">Date: <span
+                            id="viewWaterDateVal" style="color:var(--text);">2026-06-11</span></div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f8fafc; border-radius:8px; border: 1px solid var(--border);">
+                        <a href="javascript:void(0)" onclick="viewLocationMonthlyData('WATER')"
+                            class="power-loc-link"><i class="bi bi-geo-alt"></i> WATER</a>
+                        <div style="text-align: right;">
+                            <span style="font-size:0.75rem; color:var(--muted); display:block;" id="viewWaterOpCl">Op: 0 / Cl: 0</span>
+                            <span style="font-weight:700; color:var(--primary);" id="viewWaterVal">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="monthlyWaterDetails"
+                style="display:none; margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <h3 id="monthlyWaterLocationTitle" style="font-size:1.1rem; color:var(--primary);">Location Monthly
+                        Values</h3>
+                    <button class="btn-action btn-edit" onclick="backToWaterSummary()" style="padding:4px 8px;"><i
+                            class="bi bi-arrow-left"></i> Back</button>
+                </div>
+                <div style="max-height: 250px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px;">
+                    <table style="min-width: 100%; text-align: left; border-collapse: collapse;">
+                        <thead style="background: #0284c7; color: white;">
+                            <tr>
+                                <th style="padding: 8px; font-size: 0.8rem; text-transform: uppercase;">Date</th>
+                                <th style="padding: 8px; font-size: 0.8rem; text-transform: uppercase;">Opening</th>
+                                <th style="padding: 8px; font-size: 0.8rem; text-transform: uppercase;">Closing</th>
+                                <th style="padding: 8px; font-size: 0.8rem; text-transform: uppercase;">Water</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthlyWaterTableBody">
+                            <!-- Monthly entries will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="monthlyWaterTotalContainer"
+                    style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding:10px; background:#f8fafc; border-radius:8px; border: 1px solid var(--border); font-weight:700;">
+                    <span style="color:var(--muted); font-size:0.9rem;">Total Water:</span>
+                    <span id="monthlyWaterTotalVal" style="color:var(--primary); font-size:1.1rem;">0</span>
                 </div>
             </div>
         </div>
@@ -1247,7 +1423,7 @@
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
         window.onclick = function (e) {
-            ['addModal', 'afterModal', 'powerModal', 'viewPowerModal'].forEach(id => {
+            ['addModal', 'afterModal', 'powerModal', 'viewPowerModal', 'viewWaterModal'].forEach(id => {
                 if (e.target === document.getElementById(id)) closeModal(id);
             });
         };
@@ -1624,14 +1800,25 @@
             const powerMonthDisplay = document.getElementById('powerMonthValue');
             const powerCard = document.querySelector('.summary-card.power');
 
+            const waterDisplay = document.getElementById('waterValue');
+            const waterMonthDisplay = document.getElementById('waterMonthValue');
+            const waterCard = document.querySelector('.summary-card.water');
+
             let totalPower = 0;
+            let totalWater = 0;
             entriesForDate.forEach(p => {
                 const val = parseFloat(p.Power);
-                if (!isNaN(val)) totalPower += val;
+                if (String(p.Location).trim().toLowerCase() === 'water') {
+                    if (!isNaN(val)) totalWater += val;
+                } else {
+                    if (!isNaN(val)) totalPower += val;
+                }
             });
             totalPower = Math.round(totalPower * 100) / 100;
+            totalWater = Math.round(totalWater * 100) / 100;
 
             let monthlyPower = 0;
+            let monthlyWater = 0;
             if (selectedDate) {
                 const parts = selectedDate.split('-');
                 if (parts.length >= 2) {
@@ -1639,11 +1826,16 @@
                     const monthlyEntries = powerData.filter(p => toDateKey(p.Date).startsWith(yearMonth));
                     monthlyEntries.forEach(p => {
                         const val = parseFloat(p.Power);
-                        if (!isNaN(val)) monthlyPower += val;
+                        if (String(p.Location).trim().toLowerCase() === 'water') {
+                            if (!isNaN(val)) monthlyWater += val;
+                        } else {
+                            if (!isNaN(val)) monthlyPower += val;
+                        }
                     });
                 }
             }
             monthlyPower = Math.round(monthlyPower * 100) / 100;
+            monthlyWater = Math.round(monthlyWater * 100) / 100;
 
             if (powerDisplay) powerDisplay.textContent = totalPower;
             if (powerMonthDisplay) powerMonthDisplay.textContent = monthlyPower;
@@ -1651,6 +1843,43 @@
                 powerCard.style.cursor = 'pointer';
                 powerCard.style.pointerEvents = 'auto';
             }
+
+            if (waterDisplay) waterDisplay.textContent = totalWater;
+            if (waterMonthDisplay) waterMonthDisplay.textContent = monthlyWater;
+            if (waterCard) {
+                waterCard.style.cursor = 'pointer';
+                waterCard.style.pointerEvents = 'auto';
+            }
+        }
+
+        function calcPower(prefix) {
+            const opening = parseFloat(document.getElementById(prefix + 'Opening').value);
+            const closing = parseFloat(document.getElementById(prefix + 'Closing').value);
+            const powerField = document.getElementById(prefix + 'Power');
+            if (!isNaN(opening) && !isNaN(closing)) {
+                let diff = closing - opening;
+                if (prefix === 'wh' || prefix === 'ks') {
+                    diff = diff * 40;
+                }
+                powerField.value = Math.max(0, Math.round(diff * 100) / 100);
+            } else {
+                powerField.value = '';
+            }
+        }
+
+        function getPreviousClosing(locationName, beforeDateStr) {
+            if (!beforeDateStr) return '';
+            const locNameLower = locationName.trim().toLowerCase();
+            const pastEntries = powerData.filter(p => {
+                if (String(p.Location).trim().toLowerCase() !== locNameLower) return false;
+                const pDateStr = toDateKey(p.Date);
+                if (!pDateStr) return false;
+                return pDateStr < beforeDateStr;
+            });
+            if (pastEntries.length === 0) return '';
+            // Sort descending by date to get the most recent one
+            pastEntries.sort((a, b) => new Date(toDateKey(b.Date)) - new Date(toDateKey(a.Date)));
+            return (pastEntries[0].Closing !== undefined && pastEntries[0].Closing !== null && pastEntries[0].Closing !== '') ? pastEntries[0].Closing : '';
         }
 
         function openPowerModal() {
@@ -1661,21 +1890,38 @@
             const karaSweetEntry = entriesForDate.find(p => String(p.Location).trim().toLowerCase() === 'kara section & sweet section');
             const packingAdminEntry = entriesForDate.find(p => String(p.Location).trim().toLowerCase() === 'sweet packing & admin office');
             const dieselGenEntry = entriesForDate.find(p => String(p.Location).trim().toLowerCase() === 'diesel generator');
+            const waterEntry = entriesForDate.find(p => String(p.Location).trim().toLowerCase() === 'water');
 
-            document.getElementById('powerWarehouse').value = warehouseEntry ? warehouseEntry.Power : '';
-            document.getElementById('powerKaraSweet').value = karaSweetEntry ? karaSweetEntry.Power : '';
-            document.getElementById('powerPackingAdmin').value = packingAdminEntry ? packingAdminEntry.Power : '';
-            document.getElementById('powerDieselGen').value = dieselGenEntry ? dieselGenEntry.Power : '';
+            document.getElementById('whOpening').value = (warehouseEntry && warehouseEntry.Opening !== undefined && warehouseEntry.Opening !== null && warehouseEntry.Opening !== '') ? warehouseEntry.Opening : getPreviousClosing('WARE HOUSE', selectedDate);
+            document.getElementById('whClosing').value = warehouseEntry && warehouseEntry.Closing !== undefined ? warehouseEntry.Closing : '';
 
-            const hasEntries = warehouseEntry || karaSweetEntry || packingAdminEntry || dieselGenEntry;
+            document.getElementById('ksOpening').value = (karaSweetEntry && karaSweetEntry.Opening !== undefined && karaSweetEntry.Opening !== null && karaSweetEntry.Opening !== '') ? karaSweetEntry.Opening : getPreviousClosing('KARA SECTION & SWEET SECTION', selectedDate);
+            document.getElementById('ksClosing').value = karaSweetEntry && karaSweetEntry.Closing !== undefined ? karaSweetEntry.Closing : '';
+
+            document.getElementById('paOpening').value = (packingAdminEntry && packingAdminEntry.Opening !== undefined && packingAdminEntry.Opening !== null && packingAdminEntry.Opening !== '') ? packingAdminEntry.Opening : getPreviousClosing('SWEET PACKING & ADMIN OFFICE', selectedDate);
+            document.getElementById('paClosing').value = packingAdminEntry && packingAdminEntry.Closing !== undefined ? packingAdminEntry.Closing : '';
+
+            document.getElementById('dgOpening').value = (dieselGenEntry && dieselGenEntry.Opening !== undefined && dieselGenEntry.Opening !== null && dieselGenEntry.Opening !== '') ? dieselGenEntry.Opening : getPreviousClosing('DIESEL GENERATOR', selectedDate);
+            document.getElementById('dgClosing').value = dieselGenEntry && dieselGenEntry.Closing !== undefined ? dieselGenEntry.Closing : '';
+
+            document.getElementById('wtOpening').value = (waterEntry && waterEntry.Opening !== undefined && waterEntry.Opening !== null && waterEntry.Opening !== '') ? waterEntry.Opening : getPreviousClosing('WATER', selectedDate);
+            document.getElementById('wtClosing').value = waterEntry && waterEntry.Closing !== undefined ? waterEntry.Closing : '';
+
+            calcPower('wh');
+            calcPower('ks');
+            calcPower('pa');
+            calcPower('dg');
+            calcPower('wt');
+
+            const hasEntries = warehouseEntry || karaSweetEntry || packingAdminEntry || dieselGenEntry || waterEntry;
             const title = document.getElementById('powerModalTitle');
             const btnText = document.getElementById('powerBtnText');
 
             if (hasEntries) {
-                title.innerHTML = '<i class="bi bi-pencil-square"></i> Edit Power Consumption';
+                title.innerHTML = '<i class="bi bi-pencil-square"></i> Edit Power/Water Consumption';
                 btnText.textContent = 'Update Entry';
             } else {
-                title.innerHTML = '<i class="bi bi-lightning-charge-fill"></i> Power Consumption Entry';
+                title.innerHTML = '<i class="bi bi-lightning-charge-fill"></i> Power/Water Consumption Entry';
                 btnText.textContent = 'Save Entry';
             }
 
@@ -1685,18 +1931,33 @@
 
         async function savePowerEntry() {
             const selectedDate = document.getElementById('dateFilter').value;
-            const whVal = document.getElementById('powerWarehouse').value;
-            const ksVal = document.getElementById('powerKaraSweet').value;
-            const paVal = document.getElementById('powerPackingAdmin').value;
-            const dgVal = document.getElementById('powerDieselGen').value;
+            const whOp = document.getElementById('whOpening').value;
+            const whCl = document.getElementById('whClosing').value;
+            const whPw = document.getElementById('whPower').value;
+
+            const ksOp = document.getElementById('ksOpening').value;
+            const ksCl = document.getElementById('ksClosing').value;
+            const ksPw = document.getElementById('ksPower').value;
+
+            const paOp = document.getElementById('paOpening').value;
+            const paCl = document.getElementById('paClosing').value;
+            const paPw = document.getElementById('paPower').value;
+
+            const dgOp = document.getElementById('dgOpening').value;
+            const dgCl = document.getElementById('dgClosing').value;
+            const dgPw = document.getElementById('dgPower').value;
+
+            const wtOp = document.getElementById('wtOpening').value;
+            const wtCl = document.getElementById('wtClosing').value;
+            const wtPw = document.getElementById('wtPower').value;
 
             const btn = document.querySelector('#powerModal .submit-btn');
             const txt = document.getElementById('powerBtnText');
             const ldr = document.getElementById('powerBtnLoader');
             const msg = document.getElementById('powerStatusMsg');
 
-            if (whVal === '' && ksVal === '' && paVal === '' && dgVal === '') {
-                alert('Please enter at least one power value');
+            if (whOp === '' && whCl === '' && ksOp === '' && ksCl === '' && paOp === '' && paCl === '' && dgOp === '' && dgCl === '' && wtOp === '' && wtCl === '') {
+                alert('Please enter at least one value');
                 return;
             }
 
@@ -1706,10 +1967,36 @@
             msg.className = 'status-msg';
 
             const entries = [
-                { location: 'WARE HOUSE', power: whVal !== '' ? parseFloat(whVal) : 0 },
-                { location: 'KARA SECTION & SWEET SECTION', power: ksVal !== '' ? parseFloat(ksVal) : 0 },
-                { location: 'SWEET PACKING & ADMIN OFFICE', power: paVal !== '' ? parseFloat(paVal) : 0 },
-                { location: 'DIESEL GENERATOR', power: dgVal !== '' ? parseFloat(dgVal) : 0 }
+                { 
+                    location: 'WARE HOUSE', 
+                    opening: whOp !== '' ? parseFloat(whOp) : '', 
+                    closing: whCl !== '' ? parseFloat(whCl) : '', 
+                    power: whPw !== '' ? parseFloat(whPw) : '' 
+                },
+                { 
+                    location: 'KARA SECTION & SWEET SECTION', 
+                    opening: ksOp !== '' ? parseFloat(ksOp) : '', 
+                    closing: ksCl !== '' ? parseFloat(ksCl) : '', 
+                    power: ksPw !== '' ? parseFloat(ksPw) : '' 
+                },
+                { 
+                    location: 'SWEET PACKING & ADMIN OFFICE', 
+                    opening: paOp !== '' ? parseFloat(paOp) : '', 
+                    closing: paCl !== '' ? parseFloat(paCl) : '', 
+                    power: paPw !== '' ? parseFloat(paPw) : '' 
+                },
+                { 
+                    location: 'DIESEL GENERATOR', 
+                    opening: dgOp !== '' ? parseFloat(dgOp) : '', 
+                    closing: dgCl !== '' ? parseFloat(dgCl) : '', 
+                    power: dgPw !== '' ? parseFloat(dgPw) : '' 
+                },
+                { 
+                    location: 'WATER', 
+                    opening: wtOp !== '' ? parseFloat(wtOp) : '', 
+                    closing: wtCl !== '' ? parseFloat(wtCl) : '', 
+                    power: wtPw !== '' ? parseFloat(wtPw) : '' 
+                }
             ];
 
             try {
@@ -1724,7 +2011,7 @@
                 });
                 const result = await res.json();
                 if (result.status === 'success') {
-                    msg.textContent = 'Power entry saved!';
+                    msg.textContent = 'Power & Water entry saved!';
                     msg.classList.add('success');
                     await fetchPowerData();
                     setTimeout(() => closeModal('powerModal'), 1200);
@@ -1752,9 +2039,16 @@
             const dieselGenEntry = entriesForDate.find(p => String(p.Location).trim().toLowerCase() === 'diesel generator');
 
             document.getElementById('viewWarehouseVal').textContent = warehouseEntry ? warehouseEntry.Power : '0';
+            document.getElementById('viewWarehouseOpCl').textContent = warehouseEntry ? `Op: ${warehouseEntry.Opening !== undefined ? warehouseEntry.Opening : 0} / Cl: ${warehouseEntry.Closing !== undefined ? warehouseEntry.Closing : 0}` : 'Op: 0 / Cl: 0';
+
             document.getElementById('viewKaraSweetVal').textContent = karaSweetEntry ? karaSweetEntry.Power : '0';
+            document.getElementById('viewKaraSweetOpCl').textContent = karaSweetEntry ? `Op: ${karaSweetEntry.Opening !== undefined ? karaSweetEntry.Opening : 0} / Cl: ${karaSweetEntry.Closing !== undefined ? karaSweetEntry.Closing : 0}` : 'Op: 0 / Cl: 0';
+
             document.getElementById('viewPackingAdminVal').textContent = packingAdminEntry ? packingAdminEntry.Power : '0';
+            document.getElementById('viewPackingAdminOpCl').textContent = packingAdminEntry ? `Op: ${packingAdminEntry.Opening !== undefined ? packingAdminEntry.Opening : 0} / Cl: ${packingAdminEntry.Closing !== undefined ? packingAdminEntry.Closing : 0}` : 'Op: 0 / Cl: 0';
+
             document.getElementById('viewDieselGenVal').textContent = dieselGenEntry ? dieselGenEntry.Power : '0';
+            document.getElementById('viewDieselGenOpCl').textContent = dieselGenEntry ? `Op: ${dieselGenEntry.Opening !== undefined ? dieselGenEntry.Opening : 0} / Cl: ${dieselGenEntry.Closing !== undefined ? dieselGenEntry.Closing : 0}` : 'Op: 0 / Cl: 0';
 
             // Reset view state
             document.getElementById('viewPowerContent').style.display = 'block';
@@ -1764,16 +2058,22 @@
         }
 
         function viewLocationMonthlyData(locationName) {
-            document.getElementById('viewPowerContent').style.display = 'none';
-            document.getElementById('monthlyPowerDetails').style.display = 'block';
-            document.getElementById('monthlyLocationTitle').textContent = locationName;
+            const isWater = locationName.trim().toLowerCase() === 'water';
+            const contentId = isWater ? 'viewWaterContent' : 'viewPowerContent';
+            const detailsId = isWater ? 'monthlyWaterDetails' : 'monthlyPowerDetails';
+            const titleId = isWater ? 'monthlyWaterLocationTitle' : 'monthlyLocationTitle';
+            const tbodyId = isWater ? 'monthlyWaterTableBody' : 'monthlyPowerTableBody';
+            const totalValId = isWater ? 'monthlyWaterTotalVal' : 'monthlyPowerTotalVal';
+
+            document.getElementById(contentId).style.display = 'none';
+            document.getElementById(detailsId).style.display = 'block';
+            document.getElementById(titleId).textContent = locationName;
 
             const selectedDate = document.getElementById('dateFilter').value;
             if (!selectedDate) return;
             const parts = selectedDate.split('-');
-            const yearMonth = `${parts[0]}-${parts[1]}`; // '2026-06'
+            const yearMonth = `${parts[0]}-${parts[1]}`;
 
-            // Filter
             const monthlyList = powerData.filter(p => {
                 const pDate = toDateKey(p.Date);
                 return pDate.startsWith(yearMonth) && String(p.Location).trim().toLowerCase() === locationName.trim().toLowerCase();
@@ -1782,12 +2082,26 @@
             // Sort descending by date
             monthlyList.sort((a, b) => new Date(b.Date) - new Date(a.Date));
 
-            const tbody = document.getElementById('monthlyPowerTableBody');
+            const tbody = document.getElementById(tbodyId);
             tbody.innerHTML = '';
 
+            // Update monthly headers
+            const tableElement = tbody.closest('table');
+            if (tableElement) {
+                const thead = tableElement.querySelector('thead');
+                thead.innerHTML = `
+                    <tr>
+                        <th style="padding: 8px; font-size: 0.8rem; text-transform: uppercase;">Date</th>
+                        <th style="padding: 8px; font-size: 0.8rem; text-transform: uppercase;">Opening</th>
+                        <th style="padding: 8px; font-size: 0.8rem; text-transform: uppercase;">Closing</th>
+                        <th style="padding: 8px; font-size: 0.8rem; text-transform: uppercase;">${isWater ? 'Water' : 'Power'}</th>
+                    </tr>
+                `;
+            }
+
             if (monthlyList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; padding:10px; color:var(--muted);">No records for this month</td></tr>`;
-                document.getElementById('monthlyPowerTotalVal').textContent = '0';
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:10px; color:var(--muted);">No records for this month</td></tr>`;
+                document.getElementById(totalValId).textContent = '0';
             } else {
                 let totalPower = 0;
                 monthlyList.forEach(item => {
@@ -1802,15 +2116,16 @@
                     tbody.innerHTML += `
                         <tr ${rowClass} ${highlightStyle}>
                             <td style="padding: 8px; border-bottom: 1px solid var(--border);">${dateStr}</td>
+                            <td style="padding: 8px; border-bottom: 1px solid var(--border);">${item.Opening !== undefined ? item.Opening : '---'}</td>
+                            <td style="padding: 8px; border-bottom: 1px solid var(--border);">${item.Closing !== undefined ? item.Closing : '---'}</td>
                             <td style="padding: 8px; border-bottom: 1px solid var(--border); font-weight:700;">${item.Power}</td>
                         </tr>
                     `;
                 });
 
                 totalPower = Math.round(totalPower * 100) / 100;
-                document.getElementById('monthlyPowerTotalVal').textContent = totalPower;
+                document.getElementById(totalValId).textContent = totalPower;
 
-                // Scroll the highlighted row into view
                 const highlightedRow = tbody.querySelector('.highlighted-row');
                 if (highlightedRow) {
                     setTimeout(() => {
@@ -1823,6 +2138,28 @@
         function backToPowerSummary() {
             document.getElementById('viewPowerContent').style.display = 'block';
             document.getElementById('monthlyPowerDetails').style.display = 'none';
+        }
+
+        function openViewWaterModal() {
+            const selectedDate = document.getElementById('dateFilter').value;
+            document.getElementById('viewWaterDateVal').textContent = formatDate(selectedDate);
+
+            const entriesForDate = powerData.filter(p => toDateKey(p.Date) === selectedDate);
+            const waterEntry = entriesForDate.find(p => String(p.Location).trim().toLowerCase() === 'water');
+
+            document.getElementById('viewWaterVal').textContent = waterEntry ? waterEntry.Power : '0';
+            document.getElementById('viewWaterOpCl').textContent = waterEntry ? `Op: ${waterEntry.Opening !== undefined ? waterEntry.Opening : 0} / Cl: ${waterEntry.Closing !== undefined ? waterEntry.Closing : 0}` : 'Op: 0 / Cl: 0';
+
+            // Reset view state
+            document.getElementById('viewWaterContent').style.display = 'block';
+            document.getElementById('monthlyWaterDetails').style.display = 'none';
+
+            document.getElementById('viewWaterModal').classList.add('active');
+        }
+
+        function backToWaterSummary() {
+            document.getElementById('viewWaterContent').style.display = 'block';
+            document.getElementById('monthlyWaterDetails').style.display = 'none';
         }
     </script>
 </body>
