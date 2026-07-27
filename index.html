@@ -487,6 +487,30 @@
             transform: scale(1.1);
         }
 
+        .fab-blue {
+            position: fixed;
+            bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 150px);
+            right: max(1rem, env(safe-area-inset-right));
+            width: 60px;
+            height: 60px;
+            background: #0284c7;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.4);
+            cursor: pointer;
+            border: none;
+            z-index: 900;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .fab-blue:hover {
+            transform: scale(1.1);
+        }
+
         .power-loc-link {
             color: var(--secondary);
             font-weight: 600;
@@ -833,6 +857,14 @@
                 bottom: calc(max(0.75rem, env(safe-area-inset-bottom)) + 68px);
                 right: max(0.75rem, env(safe-area-inset-right));
             }
+
+            .fab-blue {
+                width: 56px;
+                height: 56px;
+                font-size: 1.4rem;
+                bottom: calc(max(0.75rem, env(safe-area-inset-bottom)) + 136px);
+                right: max(0.75rem, env(safe-area-inset-right));
+            }
         }
     </style>
 </head>
@@ -943,6 +975,7 @@
         <div id="dashboardContainer"></div>
     </div>
 
+    <button class="fab-blue" onclick="openWaterEntryModal()" title="Add/Edit Water Readings">+</button>
     <button class="fab-orange" onclick="openPowerModal()" title="Add/Edit Power Consumption">+</button>
     <button class="fab" onclick="openModal()">+</button>
 
@@ -1011,7 +1044,7 @@
                             <label class="worker-opt"><input type="checkbox" value="ramakrishnan m"> ramakrishnan
                                 m</label>
                             <label class="worker-opt"><input type="checkbox" value="vimalraj"> vimalraj</label>
-
+                                
                         </div>
                     </div>
                     <div class="form-group full" id="imageGroup">
@@ -1276,10 +1309,9 @@
                             id="viewWaterDateVal" style="color:var(--text);">2026-06-11</span></div>
                 </div>
                 <div style="display:flex; flex-direction:column; gap:12px;">
-                    <div
-                        style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f8fafc; border-radius:8px; border: 1px solid var(--border);">
-                        <a href="javascript:void(0)" onclick="viewLocationMonthlyData('WATER')"
-                            class="power-loc-link"><i class="bi bi-geo-alt"></i> WATER</a>
+                    <div onclick="viewWaterMonthlyDetails()"
+                        style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:#f8fafc; border-radius:8px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;">
+                        <span class="power-loc-link" style="font-weight: 700;"><i class="bi bi-geo-alt"></i> WATER</span>
                         <div style="text-align: right;">
                             <span style="font-size:0.75rem; color:var(--muted); display:block;" id="viewWaterOpCl">Op: 0 / Cl: 0</span>
                             <span style="font-weight:700; color:var(--primary);" id="viewWaterVal">0</span>
@@ -1316,6 +1348,80 @@
                     <span id="monthlyWaterTotalVal" style="color:var(--primary); font-size:1.1rem;">0</span>
                 </div>
             </div>
+            <div id="timewiseWaterDetails"
+                style="display:none; margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <h3 style="font-size:1.1rem; color:var(--primary);">Timewise Readings - <span id="timewiseWaterDate">2026-06-11</span></h3>
+                    <button class="btn-action btn-edit" onclick="backToWaterMonthly()" style="padding:4px 8px;"><i
+                            class="bi bi-arrow-left"></i> Back</button>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:12px;" id="waterReadingsList">
+                    <!-- Readings will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+            
+    <!-- Water Entry Modal -->
+    <div class="modal" id="waterEntryModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <button class="close-modal" onclick="closeModal('waterEntryModal')">&times;</button>
+            <h2 id="waterEntryModalTitle"><i class="bi bi-droplet-fill" style="color: #0284c7;"></i> Water Readings</h2>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div class="form-group full">
+                    <div style="font-weight: 600; color: var(--muted); margin-bottom: 4px;">Date: <span id="waterEntryDateVal" style="color:var(--text);">2026-06-11</span></div>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: grid; grid-template-columns: 100px 1fr 1fr; gap: 8px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); padding-bottom: 4px;">
+                        <span>Time</span>
+                        <span>Opening</span>
+                        <span>Closing</span>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 100px 1fr 1fr; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                        <span style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">7:00 AM</span>
+                        <input type="number" id="wt_7am_op" placeholder="Opening" step="0.01" style="width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;">
+                        <input type="number" id="wt_7am_cl" placeholder="Closing" step="0.01" oninput="document.getElementById('wt_9am_op').value = this.value" style="width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 100px 1fr 1fr; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                        <span style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">9:00 AM</span>
+                        <input type="number" id="wt_9am_op" placeholder="Opening" step="0.01" style="width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;">
+                        <input type="number" id="wt_9am_cl" placeholder="Closing" step="0.01" oninput="document.getElementById('wt_11am_op').value = this.value" style="width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 100px 1fr 1fr; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                        <span style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">11:00 AM</span>
+                        <input type="number" id="wt_11am_op" placeholder="Opening" step="0.01" style="width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;">
+                        <input type="number" id="wt_11am_cl" placeholder="Closing" step="0.01" oninput="document.getElementById('wt_1pm_op').value = this.value" style="width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 100px 1fr 1fr; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                        <span style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">1:00 PM</span>
+                        <input type="number" id="wt_1pm_op" placeholder="Opening" step="0.01" style="width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;">
+                        <input type="number" id="wt_1pm_cl" placeholder="Closing" step="0.01" oninput="document.getElementById('wt_3pm_op').value = this.value" style="width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 100px 1fr 1fr; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                        <span style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">3:00 PM</span>
+                        <input type="number" id="wt_3pm_op" placeholder="Opening" step="0.01" style="width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;">
+                        <input type="number" id="wt_3pm_cl" placeholder="Closing" step="0.01" oninput="document.getElementById('wt_5pm_op').value = this.value" style="width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 100px 1fr 1fr; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                        <span style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">5:00 PM</span>
+                        <input type="number" id="wt_5pm_op" placeholder="Opening" step="0.01" style="width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;">
+                        <input type="number" id="wt_5pm_cl" placeholder="Closing" step="0.01" oninput="document.getElementById('wt_7pm_op').value = this.value" style="width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 100px 1fr 1fr; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                        <span style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">7:00 PM</span>
+                        <input type="number" id="wt_7pm_op" placeholder="Opening" step="0.01" style="width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;">
+                        <input type="number" id="wt_7pm_cl" placeholder="Closing" step="0.01" style="width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;">
+                    </div>
+                </div>
+ 
+                <button type="button" class="submit-btn" style="background: #0284c7;" onclick="saveWaterReadings()">
+                    <span id="waterSaveBtnText">Save Readings</span>
+                    <div class="loader" id="waterSaveBtnLoader"></div>
+                </button>
+            </div>
+             <div id="waterEntryStatusMsg" class="status-msg"></div>
         </div>
     </div>
 
@@ -1328,31 +1434,49 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwm1PU-0Lq2JsV_M8ARbZMFd2cenIGu--QCtLRclp-6y6TmkrhxjtNio7yuVj8vmjTXpA/exec";
         let allData = [];
         let powerData = [];
+        let waterData = [];
         let beforeImgData = null;
         let afterImgData = null;
 
         window.addEventListener('DOMContentLoaded', function () {
             fetchData();
             fetchPowerData();
+            fetchWaterData();
         });
         document.getElementById('zoneFilter').addEventListener('change', renderDashboard);
         document.getElementById('statusFilter').addEventListener('change', renderDashboard);
         document.getElementById('dateFilter').addEventListener('change', function () {
             renderDashboard();
             updatePowerDisplay();
+            updateWaterDisplay();
         });
 
         function toDateKey(value) {
             if (!value) return '';
             if (typeof value === 'string') {
+                value = value.trim();
                 if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+                const match = value.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+                if (match) {
+                    const d = match[1].padStart(2, '0');
+                    const m = match[2].padStart(2, '0');
+                    const y = match[3];
+                    return `${y}-${m}-${d}`;
+                }
+                if (value.includes('T')) {
+                    return value.split('T')[0];
+                }
             }
-            const date = (value instanceof Date || Object.prototype.toString.call(value) === '[object Date]') ? value : new Date(value);
-            if (isNaN(date.getTime())) return '';
-            const y = date.getFullYear();
-            const m = String(date.getMonth() + 1).padStart(2, '0');
-            const d = String(date.getDate()).padStart(2, '0');
-            return `${y}-${m}-${d}`;
+            try {
+                const date = (value instanceof Date || Object.prototype.toString.call(value) === '[object Date]') ? value : new Date(value);
+                if (isNaN(date.getTime())) return '';
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const d = String(date.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            } catch (e) {
+                return '';
+            }
         }
 
         function previewFile(e, previewId) {
@@ -1425,7 +1549,7 @@
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
         window.onclick = function (e) {
-            ['addModal', 'afterModal', 'powerModal', 'viewPowerModal', 'viewWaterModal'].forEach(id => {
+            ['addModal', 'afterModal', 'powerModal', 'viewPowerModal', 'viewWaterModal', 'waterEntryModal'].forEach(id => {
                 if (e.target === document.getElementById(id)) closeModal(id);
             });
         };
@@ -1789,6 +1913,7 @@
                 if (result.status === 'success') {
                     powerData = result.data || [];
                     updatePowerDisplay();
+                    updateWaterDisplay();
                 }
             } catch (err) {
                 console.error('Error fetching power data:', err);
@@ -1802,25 +1927,16 @@
             const powerMonthDisplay = document.getElementById('powerMonthValue');
             const powerCard = document.querySelector('.summary-card.power');
 
-            const waterDisplay = document.getElementById('waterValue');
-            const waterMonthDisplay = document.getElementById('waterMonthValue');
-            const waterCard = document.querySelector('.summary-card.water');
-
             let totalPower = 0;
-            let totalWater = 0;
             entriesForDate.forEach(p => {
                 const val = parseFloat(p.Power);
-                if (String(p.Location).trim().toLowerCase() === 'water') {
-                    if (!isNaN(val)) totalWater += val;
-                } else {
+                if (String(p.Location).trim().toLowerCase() !== 'water') {
                     if (!isNaN(val)) totalPower += val;
                 }
             });
             totalPower = Math.round(totalPower * 100) / 100;
-            totalWater = Math.round(totalWater * 100) / 100;
 
             let monthlyPower = 0;
-            let monthlyWater = 0;
             if (selectedDate) {
                 const parts = selectedDate.split('-');
                 if (parts.length >= 2) {
@@ -1828,16 +1944,13 @@
                     const monthlyEntries = powerData.filter(p => toDateKey(p.Date).startsWith(yearMonth));
                     monthlyEntries.forEach(p => {
                         const val = parseFloat(p.Power);
-                        if (String(p.Location).trim().toLowerCase() === 'water') {
-                            if (!isNaN(val)) monthlyWater += val;
-                        } else {
+                        if (String(p.Location).trim().toLowerCase() !== 'water') {
                             if (!isNaN(val)) monthlyPower += val;
                         }
                     });
                 }
             }
             monthlyPower = Math.round(monthlyPower * 100) / 100;
-            monthlyWater = Math.round(monthlyWater * 100) / 100;
 
             if (powerDisplay) powerDisplay.textContent = totalPower;
             if (powerMonthDisplay) powerMonthDisplay.textContent = monthlyPower;
@@ -1845,13 +1958,71 @@
                 powerCard.style.cursor = 'pointer';
                 powerCard.style.pointerEvents = 'auto';
             }
+        }
 
-            if (waterDisplay) waterDisplay.textContent = totalWater;
-            if (waterMonthDisplay) waterMonthDisplay.textContent = monthlyWater;
+        async function fetchWaterData() {
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'getWaterData' })
+                });
+                const result = await res.json();
+                if (result.status === 'success') {
+                    waterData = result.data || [];
+                    updateWaterDisplay();
+                }
+            } catch (err) {
+                console.error('Error fetching water data:', err);
+            }
+        }
+
+        function updateWaterDisplay() {
+            const selectedDate = document.getElementById('dateFilter').value;
+            
+            const waterDisplay = document.getElementById('waterValue');
+            const waterMonthDisplay = document.getElementById('waterMonthValue');
+            const waterCard = document.querySelector('.summary-card.water');
+
+            // Get water entries from powerData
+            const waterEntries = powerData.filter(p => String(p.Location).trim().toLowerCase() === 'water');
+            
+            const entriesForDate = waterEntries.filter(p => toDateKey(p.Date) === selectedDate);
+            let dailyConsumption = 0;
+            let opening = 0;
+            let closing = 0;
+            if (entriesForDate.length > 0) {
+                const p = entriesForDate[0];
+                dailyConsumption = parseFloat(p.Power) || 0;
+                opening = p.Opening !== undefined && p.Opening !== null && p.Opening !== "" ? p.Opening : 0;
+                closing = p.Closing !== undefined && p.Closing !== null && p.Closing !== "" ? p.Closing : 0;
+            }
+
+            let monthlyConsumption = 0;
+            if (selectedDate) {
+                const parts = selectedDate.split('-');
+                if (parts.length >= 2) {
+                    const yearMonth = `${parts[0]}-${parts[1]}`;
+                    const monthlyEntries = waterEntries.filter(p => toDateKey(p.Date).startsWith(yearMonth));
+                    monthlyEntries.forEach(p => {
+                        const val = parseFloat(p.Power);
+                        if (!isNaN(val)) monthlyConsumption += val;
+                    });
+                }
+            }
+            monthlyConsumption = Math.round(monthlyConsumption * 100) / 100;
+
+            if (waterDisplay) waterDisplay.textContent = dailyConsumption;
+            if (waterMonthDisplay) waterMonthDisplay.textContent = monthlyConsumption;
             if (waterCard) {
                 waterCard.style.cursor = 'pointer';
                 waterCard.style.pointerEvents = 'auto';
             }
+
+            const viewWaterOpCl = document.getElementById('viewWaterOpCl');
+            const viewWaterVal = document.getElementById('viewWaterVal');
+            if (viewWaterOpCl) viewWaterOpCl.textContent = `Op: ${opening} / Cl: ${closing}`;
+            if (viewWaterVal) viewWaterVal.textContent = dailyConsumption;
         }
 
         function calcPower(prefix) {
@@ -2117,7 +2288,9 @@
 
                     tbody.innerHTML += `
                         <tr ${rowClass} ${highlightStyle}>
-                            <td style="padding: 8px; border-bottom: 1px solid var(--border);">${dateStr}</td>
+                            <td style="padding: 8px; border-bottom: 1px solid var(--border);">
+                                <a href="javascript:void(0)" onclick="selectPowerDate('${toDateKey(item.Date)}')" style="color: var(--secondary); font-weight: 600; text-decoration: none;">${dateStr}</a>
+                            </td>
                             <td style="padding: 8px; border-bottom: 1px solid var(--border);">${item.Opening !== undefined ? item.Opening : '---'}</td>
                             <td style="padding: 8px; border-bottom: 1px solid var(--border);">${item.Closing !== undefined ? item.Closing : '---'}</td>
                             <td style="padding: 8px; border-bottom: 1px solid var(--border); font-weight:700;">${item.Power}</td>
@@ -2142,26 +2315,282 @@
             document.getElementById('monthlyPowerDetails').style.display = 'none';
         }
 
+        function selectPowerDate(dateKey) {
+            document.getElementById('dateFilter').value = dateKey;
+            renderDashboard();
+            updatePowerDisplay();
+            updateWaterDisplay();
+            backToPowerSummary();
+            openViewPowerModal();
+        }
+
+        function openWaterEntryModal() {
+            try {
+                const selectedDate = document.getElementById('dateFilter').value;
+                
+                const dateValEl = document.getElementById('waterEntryDateVal');
+                if (dateValEl) {
+                    dateValEl.textContent = formatDate(selectedDate);
+                } else {
+                    console.warn("waterEntryDateVal element not found");
+                }
+
+                const slots = {
+                    "7 AM": { op: "wt_7am_op", cl: "wt_7am_cl" },
+                    "9 AM": { op: "wt_9am_op", cl: "wt_9am_cl" },
+                    "11 AM": { op: "wt_11am_op", cl: "wt_11am_cl" },
+                    "1 PM": { op: "wt_1pm_op", cl: "wt_1pm_cl" },
+                    "3 PM": { op: "wt_3pm_op", cl: "wt_3pm_cl" },
+                    "5 PM": { op: "wt_5pm_op", cl: "wt_5pm_cl" },
+                    "7 PM": { op: "wt_7pm_op", cl: "wt_7pm_cl" }
+                };
+
+                Object.values(slots).forEach(inputs => {
+                    const opEl = document.getElementById(inputs.op);
+                    const clEl = document.getElementById(inputs.cl);
+                    if (opEl) opEl.value = "";
+                    if (clEl) clEl.value = "";
+                });
+
+                if (Array.isArray(waterData)) {
+                    const entriesForDate = waterData.filter(w => toDateKey(w.Date) === selectedDate);
+                    entriesForDate.forEach(entry => {
+                        const timeKey = String(entry.Time).trim();
+                        const inputs = slots[timeKey];
+                        if (inputs) {
+                            const opEl = document.getElementById(inputs.op);
+                            const clEl = document.getElementById(inputs.cl);
+                            if (opEl) opEl.value = entry.Opening !== undefined ? entry.Opening : "";
+                            if (clEl) clEl.value = entry.Closing !== undefined ? entry.Closing : "";
+                        }
+                    });
+
+                    // If 7 AM Opening is still empty, try to pre-fill from previous calendar day's 7 PM Closing
+                    const wt7amOp = document.getElementById('wt_7am_op');
+                    if (wt7amOp && wt7amOp.value === "" && selectedDate) {
+                        try {
+                            const parts = selectedDate.split('-');
+                            const d = new Date(parts[0], parts[1] - 1, parts[2]);
+                            d.setDate(d.getDate() - 1);
+                            const prevDateStr = toDateKey(d);
+                            const prevEntries = waterData.filter(w => toDateKey(w.Date) === prevDateStr);
+                            const prev7pm = prevEntries.find(e => String(e.Time).trim() === "7 PM");
+                            if (prev7pm && prev7pm.Closing !== undefined && prev7pm.Closing !== null && prev7pm.Closing !== "") {
+                                wt7amOp.value = prev7pm.Closing;
+                            }
+                        } catch (dateErr) {
+                            console.error("Error calculating previous day's water closing:", dateErr);
+                        }
+                    }
+                } else {
+                    console.warn("waterData is not an array:", waterData);
+                }
+
+                const statusEl = document.getElementById('waterEntryStatusMsg');
+                if (statusEl) statusEl.className = 'status-msg';
+
+                const modalEl = document.getElementById('waterEntryModal');
+                if (modalEl) {
+                    modalEl.classList.add('active');
+                } else {
+                    console.error("waterEntryModal element not found in DOM");
+                }
+            } catch (err) {
+                console.error("Error inside openWaterEntryModal:", err);
+                alert("Error opening modal: " + err.message);
+            }
+        }
+
+        async function saveWaterReadings() {
+            const selectedDate = document.getElementById('dateFilter').value;
+            const slots = {
+                "7 AM": { op: "wt_7am_op", cl: "wt_7am_cl" },
+                "9 AM": { op: "wt_9am_op", cl: "wt_9am_cl" },
+                "11 AM": { op: "wt_11am_op", cl: "wt_11am_cl" },
+                "1 PM": { op: "wt_1pm_op", cl: "wt_1pm_cl" },
+                "3 PM": { op: "wt_3pm_op", cl: "wt_3pm_cl" },
+                "5 PM": { op: "wt_5pm_op", cl: "wt_5pm_cl" },
+                "7 PM": { op: "wt_7pm_op", cl: "wt_7pm_cl" }
+            };
+
+            const entries = [];
+            let hasValue = false;
+            for (const [timeLabel, inputs] of Object.entries(slots)) {
+                const opVal = document.getElementById(inputs.op).value;
+                const clVal = document.getElementById(inputs.cl).value;
+                if (opVal !== "" || clVal !== "") {
+                    hasValue = true;
+                    entries.push({
+                        time: timeLabel,
+                        opening: opVal !== "" ? parseFloat(opVal) : "",
+                        closing: clVal !== "" ? parseFloat(clVal) : ""
+                    });
+                } else {
+                    entries.push({
+                        time: timeLabel,
+                        opening: "",
+                        closing: ""
+                    });
+                }
+            }
+
+            if (!hasValue) {
+                alert("Please enter at least one water reading");
+                return;
+            }
+
+            const btn = document.querySelector('#waterEntryModal .submit-btn');
+            const txt = document.getElementById('waterSaveBtnText');
+            const ldr = document.getElementById('waterSaveBtnLoader');
+            const msg = document.getElementById('waterEntryStatusMsg');
+
+            btn.disabled = true;
+            txt.style.display = 'none';
+            ldr.style.display = 'block';
+            msg.className = 'status-msg';
+
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'addWaterRecord',
+                        date: selectedDate,
+                        entries: entries
+                    })
+                });
+                const result = await res.json();
+                if (result.status === 'success') {
+                    msg.textContent = 'Water readings saved!';
+                    msg.classList.add('success');
+                    await fetchWaterData();
+                    setTimeout(() => closeModal('waterEntryModal'), 1200);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (err) {
+                msg.textContent = 'Failed: ' + err.message;
+                msg.classList.add('error');
+            } finally {
+                btn.disabled = false;
+                txt.style.display = 'block';
+                ldr.style.display = 'none';
+            }
+        }
+
         function openViewWaterModal() {
             const selectedDate = document.getElementById('dateFilter').value;
             document.getElementById('viewWaterDateVal').textContent = formatDate(selectedDate);
 
-            const entriesForDate = powerData.filter(p => toDateKey(p.Date) === selectedDate);
-            const waterEntry = entriesForDate.find(p => String(p.Location).trim().toLowerCase() === 'water');
-
-            document.getElementById('viewWaterVal').textContent = waterEntry ? waterEntry.Power : '0';
-            document.getElementById('viewWaterOpCl').textContent = waterEntry ? `Op: ${waterEntry.Opening !== undefined ? waterEntry.Opening : 0} / Cl: ${waterEntry.Closing !== undefined ? waterEntry.Closing : 0}` : 'Op: 0 / Cl: 0';
-
-            // Reset view state
+            // Reset view state to show daily summary initially
             document.getElementById('viewWaterContent').style.display = 'block';
             document.getElementById('monthlyWaterDetails').style.display = 'none';
+            document.getElementById('timewiseWaterDetails').style.display = 'none';
+
+            updateWaterDisplay();
 
             document.getElementById('viewWaterModal').classList.add('active');
+        }
+
+        function viewWaterMonthlyDetails() {
+            document.getElementById('viewWaterContent').style.display = 'none';
+            document.getElementById('monthlyWaterDetails').style.display = 'block';
+            document.getElementById('timewiseWaterDetails').style.display = 'none';
+
+            const selectedDate = document.getElementById('dateFilter').value;
+            if (!selectedDate) return;
+            const parts = selectedDate.split('-');
+            const yearMonth = `${parts[0]}-${parts[1]}`;
+
+            // Get water entries from powerData
+            const monthlyEntries = powerData.filter(p => 
+                String(p.Location).trim().toLowerCase() === 'water' && 
+                toDateKey(p.Date).startsWith(yearMonth)
+            );
+
+            // Sort descending by date
+            monthlyEntries.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+
+            const tbody = document.getElementById('monthlyWaterTableBody');
+            tbody.innerHTML = '';
+
+            const tableElement = tbody.closest('table');
+            if (tableElement) {
+                const thead = tableElement.querySelector('thead');
+                thead.innerHTML = `
+                    <tr>
+                        <th style="padding: 8px; font-size: 0.8rem; text-transform: uppercase;">Date</th>
+                        <th style="padding: 8px; font-size: 0.8rem; text-transform: uppercase;">Opening</th>
+                        <th style="padding: 8px; font-size: 0.8rem; text-transform: uppercase;">Closing</th>
+                        <th style="padding: 8px; font-size: 0.8rem; text-transform: uppercase;">Water</th>
+                    </tr>
+                `;
+            }
+
+            if (monthlyEntries.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:10px; color:var(--muted);">No records for this month</td></tr>`;
+                document.getElementById('monthlyWaterTotalVal').textContent = '0';
+            } else {
+                let monthlyTotalWater = 0;
+
+                monthlyEntries.forEach(item => {
+                    const dateStr = toDateKey(item.Date);
+                    const val = parseFloat(item.Power);
+                    if (!isNaN(val)) monthlyTotalWater += val;
+
+                    const isSelected = dateStr === selectedDate;
+                    const highlightStyle = isSelected ? 'style="background-color: rgba(13, 148, 136, 0.15); font-weight: bold;"' : '';
+                    const displayDate = formatDate(dateStr);
+
+                    tbody.innerHTML += `
+                        <tr ${highlightStyle}>
+                            <td style="padding: 8px; border-bottom: 1px solid var(--border);">
+                                <a href="javascript:void(0)" onclick="showWaterTimewiseDetails('${dateStr}')" style="color: var(--secondary); font-weight: 600; text-decoration: none;">${displayDate}</a>
+                            </td>
+                            <td style="padding: 8px; border-bottom: 1px solid var(--border);">${item.Opening !== undefined && item.Opening !== null ? item.Opening : '---'}</td>
+                            <td style="padding: 8px; border-bottom: 1px solid var(--border);">${item.Closing !== undefined && item.Closing !== null ? item.Closing : '---'}</td>
+                            <td style="padding: 8px; border-bottom: 1px solid var(--border); font-weight:700;">${item.Power}</td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('monthlyWaterTotalVal').textContent = Math.round(monthlyTotalWater * 100) / 100;
+            }
+        }
+
+        function showWaterTimewiseDetails(dateKey) {
+            document.getElementById('monthlyWaterDetails').style.display = 'none';
+            document.getElementById('timewiseWaterDetails').style.display = 'block';
+            document.getElementById('timewiseWaterDate').textContent = formatDate(dateKey);
+
+            const entriesForDate = waterData.filter(w => toDateKey(w.Date) === dateKey);
+            const times = ["7 AM", "9 AM", "11 AM", "1 PM", "3 PM", "5 PM", "7 PM"];
+            const listContainer = document.getElementById('waterReadingsList');
+            listContainer.innerHTML = "";
+
+            times.forEach(t => {
+                const entry = entriesForDate.find(e => String(e.Time).trim() === t);
+                const opReading = entry && entry.Opening !== undefined && entry.Opening !== "" ? entry.Opening : "---";
+                const clReading = entry && entry.Closing !== undefined && entry.Closing !== "" ? entry.Closing : "---";
+
+                listContainer.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f8fafc; border-radius:8px; border: 1px solid var(--border);">
+                        <span style="font-weight:600; color:var(--text);"><i class="bi bi-clock-history"></i> ${t}</span>
+                        <span style="font-weight:700; color:var(--primary);">Op: ${opReading} / Cl: ${clReading}</span>
+                    </div>
+                `;
+            });
         }
 
         function backToWaterSummary() {
             document.getElementById('viewWaterContent').style.display = 'block';
             document.getElementById('monthlyWaterDetails').style.display = 'none';
+            document.getElementById('timewiseWaterDetails').style.display = 'none';
+        }
+
+        function backToWaterMonthly() {
+            document.getElementById('monthlyWaterDetails').style.display = 'block';
+            document.getElementById('timewiseWaterDetails').style.display = 'none';
         }
     </script>
 </body>
