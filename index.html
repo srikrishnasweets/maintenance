@@ -2573,10 +2573,18 @@
                 const opReading = entry && entry.Opening !== undefined && entry.Opening !== "" ? entry.Opening : "---";
                 const clReading = entry && entry.Closing !== undefined && entry.Closing !== "" ? entry.Closing : "---";
 
+                let diffText = "";
+                if (opReading !== "---" && clReading !== "---") {
+                    const diffVal = Math.round((parseFloat(clReading) - parseFloat(opReading)) * 100) / 100;
+                    if (!isNaN(diffVal)) {
+                        diffText = ` -  Water: ${diffVal}`;
+                    }
+                }
+
                 listContainer.innerHTML += `
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f8fafc; border-radius:8px; border: 1px solid var(--border);">
                         <span style="font-weight:600; color:var(--text);"><i class="bi bi-clock-history"></i> ${t}</span>
-                        <span style="font-weight:700; color:var(--primary);">Op: ${opReading} / Cl: ${clReading}</span>
+                        <span style="font-weight:700; color:var(--primary);">Op: ${opReading} / Cl: ${clReading}${diffText}</span>
                     </div>
                 `;
             });
